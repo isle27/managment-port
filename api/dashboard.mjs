@@ -38,7 +38,7 @@ function loginPage(status = 200, error = '') {
 <label>Username<input name="username" autocomplete="username" value="admin" required></label>
 <label>Password<input name="password" type="password" autocomplete="current-password" required autofocus></label>
 ${error ? '<p class="error" role="alert">' + error + '</p>' : ''}
-<button class="primary" type="submit">Sign in</button>
+<button class="primary" type="submit"${status === 503 ? ' disabled' : ''}>Sign in</button>
 </form></section></main></body></html>`, {
     status, headers: {
       ...privateHeaders,
@@ -48,8 +48,8 @@ ${error ? '<p class="error" role="alert">' + error + '</p>' : ''}
   });
 }
 
-async function authenticate(request, origin, password, signedIn) {
-  if (request.method === 'GET') return signedIn ? redirect('/') : loginPage();
+async function authenticate(request, origin, password) {
+  if (request.method === 'GET') return loginPage();
   if (request.method !== 'POST') return methodNotAllowed('GET, POST');
   if (request.headers.get('Origin') !== origin) return new Response(null, { status: 403, headers: privateHeaders });
   const form = new URLSearchParams(await request.text());
@@ -58,7 +58,7 @@ async function authenticate(request, origin, password, signedIn) {
   }
   const expires = Math.floor(Date.now() / 1000) + sessionLength;
   const session = expires + '.' + randomBytes(16).toString('hex');
-  return redirect('/', cookieName + '=' + session + '.' + sign(session, password) +
+  return redirect('/dashboard', cookieName + '=' + session + '.' + sign(session, password) +
     '; ' + cookieAttributes + '; Max-Age=' + sessionLength);
 }
 
@@ -70,7 +70,7 @@ export default {
   async fetch(request) {
     const incoming = new URL(request.url);
     const route = incoming.searchParams.get('route') || incoming.pathname;
-    if (!/^(?:\/|\/login|\/logout|\/app\.js|\/style\.css|\/studio-icon\.png|\/api\/projects(?:\/[1-9][0-9]{0,9}(?:\/move)?)?)$/.test(route)) {
+    if (!/^(?:\/|\/login|\/logout|\/dashboard|\/app\.js|\/style\.css|\/studio-icon\.png|\/api\/projects(?:\/[1-9][0-9]{0,9}(?:\/move)?)?)$/.test(route)) {
       return new Response('Page not found.', { status: 404, headers: privateHeaders });
     }
     if ((route === '/style.css' || route === '/studio-icon.png') && ['GET', 'HEAD'].includes(request.method)) {
@@ -78,20 +78,21 @@ export default {
     }
 
     const password = process.env.ADMIN_PASSWORD;
+    const login = route === '/' || route === '/login';
     if (!password) {
+      if (login) return loginPage(503, 'Sign-in is unavailable until ADMIN_PASSWORD is configured.');
       return new Response('Set the server-side ADMIN_PASSWORD environment variable.', {
         status: 503, headers: privateHeaders
       });
     }
-    const signedIn = hasSession(request, password);
-    if (route === '/login') return authenticate(request, incoming.origin, password, signedIn);
+    if (login) return authenticate(request, incoming.origin, password);
     if (route === '/logout') {
       if (request.method !== 'POST') return methodNotAllowed('POST');
       if (request.headers.get('Origin') !== incoming.origin) return new Response(null, { status: 403, headers: privateHeaders });
-      return redirect('/login', cookieName + '=; ' + cookieAttributes + '; Max-Age=0');
+      return redirect('/', cookieName + '=; ' + cookieAttributes + '; Max-Age=0');
     }
-    if (!signedIn) {
-      if (route === '/') return redirect('/login');
+    if (!hasSession(request, password)) {
+      if (route === '/dashboard') return redirect('/');
       return Response.json({ error: 'Please sign in to Portfolio Studio.', signIn: true }, {
         status: 401, headers: privateHeaders
       });
@@ -100,13 +101,13 @@ export default {
     const headers = new Headers(request.headers);
     headers.delete('authorization');
     headers.set('oai-authenticated-user-id', 'vercel-admin');
-    const forwarded = new Request(new URL(route, incoming.origin), {
+    const forwarded = new Request(new URL(route === '/dashboard' ? '/' : route, incoming.origin), {
       method: request.method, headers, body: request.body, duplex: 'half'
     });
     const result = await worker.fetch(forwarded, { DATABASE_URL: process.env.DATABASE_URL });
     const responseHeaders = new Headers(result.headers);
     responseHeaders.set('Cache-Control', 'no-store');
-    if (route === '/' && request.method === 'GET') {
+    if (route === '/dashboard' && request.method === 'GET') {
       const html = (await result.text()).replace('<!-- session controls -->',
         '<form action="/logout" method="post"><button type="submit">Sign out</button></form>');
       return new Response(html, { status: result.status, headers: responseHeaders });

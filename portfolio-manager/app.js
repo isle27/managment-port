@@ -30,7 +30,7 @@ async function api(path = '', method = 'GET', data) {
   });
   const result = await response.json();
   if (!response.ok) {
-    if (response.status === 401 && result.signIn === true) location.assign('/login');
+    if (response.status === 401 && result.signIn === true) location.assign('/');
     throw new Error(result.error);
   }
   return result;

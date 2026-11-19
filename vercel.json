@@ -11,6 +11,7 @@
   "rewrites": [
     { "source": "/", "destination": "/api/dashboard?route=/" },
     { "source": "/login", "destination": "/api/dashboard?route=/login" },
+    { "source": "/dashboard", "destination": "/api/dashboard?route=/dashboard" },
     { "source": "/logout", "destination": "/api/dashboard?route=/logout" },
     { "source": "/app.js", "destination": "/api/dashboard?route=/app.js" },
     { "source": "/style.css", "destination": "/api/dashboard?route=/style.css" },
