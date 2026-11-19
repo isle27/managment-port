@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "portfolio-manager/dist/vercel-static",
+  "functions": {
+    "api/dashboard.mjs": {
+      "includeFiles": "portfolio-manager/{index.html,app.js,style.css,studio-icon.png}"
+    }
+  },
+  "rewrites": [
+    { "source": "/", "destination": "/api/dashboard?route=/" },
+    { "source": "/app.js", "destination": "/api/dashboard?route=/app.js" },
+    { "source": "/style.css", "destination": "/api/dashboard?route=/style.css" },
+    { "source": "/studio-icon.png", "destination": "/api/dashboard?route=/studio-icon.png" },
+    { "source": "/api/projects", "destination": "/api/dashboard?route=/api/projects" },
+    { "source": "/api/projects/:id", "destination": "/api/dashboard?route=/api/projects/:id" },
+    { "source": "/api/projects/:id/move", "destination": "/api/dashboard?route=/api/projects/:id/move" }
+  ]
+}

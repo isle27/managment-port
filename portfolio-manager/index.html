@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Projects · Portfolio Studio</title><link rel="icon" type="image/png" sizes="64x64" href="/studio-icon.png"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<main>
+  <header class="page-heading">
+    <div><p class="kicker">Portfolio workspace</p><h1>Projects</h1><p id="connection" class="connection" role="status">Connecting to Neon…</p></div>
+    <button class="primary" id="add" disabled><span aria-hidden="true">＋</span> New project</button>
+  </header>
+  <section aria-label="Projects">
+    <div class="tools">
+      <input id="search" type="search" placeholder="Search projects" aria-label="Search projects">
+      <select id="portfolio-filter" aria-label="Filter by portfolio">
+        <option value="all">All portfolios</option>
+        <option value="show_on_ai">AI Engineering</option>
+        <option value="show_on_se">Software Engineering</option>
+      </select>
+      <select id="status-filter" aria-label="Filter by publishing status">
+        <option value="all">Any status</option><option value="published">Published</option><option value="draft">Draft</option>
+      </select>
+      <button id="reorder" type="button" aria-pressed="false" disabled>Reorder</button>
+    </div>
+    <p id="order-help" class="connection" hidden>Use Move up or Move down to set the order on both portfolios.</p>
+    <div id="list"><p class="empty">Loading projects…</p></div>
+  </section>
+  <p id="status" role="status"></p>
+</main>
+<dialog id="editor" aria-labelledby="editor-title"><form id="project-form">
+  <div class="dialog-heading"><h2 id="editor-title">New project</h2><button type="button" data-close="editor" aria-label="Close project editor">×</button></div>
+  <div class="editor-fields">
+    <label>Project name<input name="title" required maxlength="200" placeholder="e.g. Meridian" autofocus></label>
+    <label>Description<textarea name="description" rows="3" maxlength="4000"></textarea></label>
+    <div class="cover-field">
+      <div id="cover-preview" class="cover-preview" hidden><img alt="Project cover preview"></div>
+      <label>Cover image<input id="cover-file" type="file" accept="image/jpeg,image/png,image/webp"></label>
+      <p class="field-note">JPG, PNG, or WebP. Images are resized for the portfolio.</p>
+      <details><summary>Use an image URL</summary><label>Image URL<input id="cover-url" maxlength="2048" placeholder="https://"></label></details>
+      <p id="cover-error" class="error" role="alert"></p>
+    </div>
+    <label>Technologies, separated by commas<input name="technologies" maxlength="2430"></label>
+    <div class="field-pair">
+      <label>Source code URL<input name="github" type="url" maxlength="2048" placeholder="https://"></label>
+      <label>Live project URL<input name="live" type="url" maxlength="2048" placeholder="https://"></label>
+    </div>
+    <fieldset><legend>Show on portfolios</legend>
+      <label class="checkbox"><input name="show_on_ai" type="checkbox"> AI Engineering</label>
+      <label class="checkbox"><input name="show_on_se" type="checkbox"> Software Engineering</label>
+    </fieldset>
+    <details id="ai-fields"><summary>AI project details</summary>
+      <label>Category<input name="ai_category" maxlength="100"></label>
+      <label>Overview<textarea name="ai_overview" rows="3" maxlength="8000"></textarea></label>
+      <label>Outcomes, one per line<textarea name="ai_outcomes" rows="3" maxlength="15030"></textarea></label>
+    </details>
+    <label class="checkbox"><input name="featured" type="checkbox"> Feature on the Software Engineering home page</label>
+    <label class="checkbox"><input name="published" type="checkbox"> Publish to portfolios</label>
+    <p id="form-error" class="error" role="alert"></p>
+  </div>
+  <footer><button id="delete-project" class="delete-link" type="button" hidden>Delete project</button><button type="button" data-close="editor">Cancel</button><button class="primary" type="submit">Save project</button></footer>
+</form></dialog>
+<dialog id="remove" aria-labelledby="remove-title"><form id="remove-form"><h2 id="remove-title">Delete project?</h2><p id="remove-copy"></p><p id="remove-error" class="error" role="alert"></p><footer><button type="button" data-close="remove" autofocus>Cancel</button><button class="danger" type="submit">Delete project</button></footer></form></dialog>
+</body></html>
