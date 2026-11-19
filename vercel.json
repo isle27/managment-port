@@ -10,6 +10,8 @@
   },
   "rewrites": [
     { "source": "/", "destination": "/api/dashboard?route=/" },
+    { "source": "/login", "destination": "/api/dashboard?route=/login" },
+    { "source": "/logout", "destination": "/api/dashboard?route=/logout" },
     { "source": "/app.js", "destination": "/api/dashboard?route=/app.js" },
     { "source": "/style.css", "destination": "/api/dashboard?route=/style.css" },
     { "source": "/studio-icon.png", "destination": "/api/dashboard?route=/studio-icon.png" },
